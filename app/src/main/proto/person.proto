@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.jdoit.oknet.pb;
+option go_package="./pbout;pbout";
+
+message Person {
+    int32 id = 1;
+    string name = 2;
+}
+
+message PersonList {
+    repeated Person pers = 1;
+}

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Button
+        android:id="@+id/btn_get_req"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="get请求"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+   <TextView
+       android:id="@+id/tv_post_label"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="post请求"
+       app:layout_constraintLeft_toLeftOf="parent"
+       app:layout_constraintTop_toBottomOf="@id/btn_get_req"/>
+
+    <Button
+        android:id="@+id/btn_sys_form"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="from请求"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_post_label"
+        />
+
+    <Button
+        android:id="@+id/btn_sys_json"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="json请求"
+        app:layout_constraintLeft_toRightOf="@id/btn_sys_form"
+        app:layout_constraintTop_toTopOf="@id/btn_sys_form"
+        android:layout_marginLeft="5dp"/>
+
+    <Button
+        android:id="@+id/btn_sys_file"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="文件上传"
+        app:layout_constraintLeft_toRightOf="@id/btn_sys_json"
+        app:layout_constraintTop_toTopOf="@id/btn_sys_form"
+        android:layout_marginLeft="5dp"/>
+
+    <Button
+        android:id="@+id/btn_pb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pb请求"
+        app:layout_constraintLeft_toRightOf="@id/btn_sys_file"
+        app:layout_constraintTop_toTopOf="@id/btn_sys_form"
+        android:layout_marginLeft="5dp"/>
+
+    <Button
+        android:id="@+id/btn_head_req"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="head请求"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_sys_form"
+        />
+
+    <Button
+        android:id="@+id/btn_put_req"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="put请求"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_head_req"
+        />
+
+    <Button
+        android:id="@+id/btn_delete_req"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="delete请求"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_put_req"
+        />
+
+    <Button
+        android:id="@+id/btn_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="文件下载"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_delete_req"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

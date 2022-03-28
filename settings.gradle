@@ -1,0 +1,21 @@
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
+        maven { url "https://jitpack.io" }
+        maven {url "https://maven.aliyun.com/repository/google"}
+        //maven { url "file://Users/sunjichang/.android/repository/" }
+        maven {url "https://maven.aliyun.com/repository/public"}
+        maven {url "https://maven.aliyun.com/repository/central"}
+        maven {url "https://mvnrepository.com" }
+    }
+}
+rootProject.name = "oknet"
+include ':app'
+include ':oknet'
+include ':oknet-adapter:rxjava3'
+include ':oknet-converter:gson'
+include ':oknet-worker:okhttp3'
+include ':oknet-converter:protobuf'
