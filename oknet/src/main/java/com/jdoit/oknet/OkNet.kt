@@ -49,7 +49,7 @@ class OkNet private constructor(){
     private var workerFactories : MutableList<INetWorker.Factory> = mutableListOf()
     private var converterFactories : MutableList<INetConverter.Factory> = mutableListOf()
     private var baseUrl : String? = null
-    private var httpsCA : HttpsCA?  = null
+    private var httpsTls : HttpsTls?  = null
     private var netInterceptor : INetInterceptor? = null
     private var okNetProxy : IOkNet
     private var coreThreadCount = 4
@@ -147,13 +147,13 @@ class OkNet private constructor(){
     /**
      * 设置Hppts相关的证书
      */
-    fun setHttpCA(httpsCA : HttpsCA) : OkNet {
-        this.httpsCA = httpsCA
+    fun setHttpCA(httpsTls : HttpsTls) : OkNet {
+        this.httpsTls = httpsTls
         return this
     }
 
-    fun getHttpCA() : HttpsCA? {
-        return httpsCA
+    fun getHttpCA() : HttpsTls? {
+        return httpsTls
     }
 
     /**

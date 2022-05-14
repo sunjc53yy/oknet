@@ -17,12 +17,14 @@ package com.jdoit.oknet
 
 import com.jdoit.oknet.utils.NetLogger
 import java.io.BufferedInputStream
-import java.io.FileInputStream
 import java.io.InputStream
 import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertificateException
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import javax.net.ssl.*
+import kotlin.random.Random
 
 /**
  * @Author: sunjichang (https://github.com/sunjc53yy)
@@ -51,50 +53,50 @@ class NetHelper private constructor(){
     }
 
     private fun initHttpsCA() {
-        val httpsCA = OkNet.instance.getHttpCA() ?: return
+        val httpsTls = OkNet.instance.getHttpCA() ?: return
         val context = OkNet.instance.getContext() ?: return
-        if (null == httpsCA.serverCrtPath) {
-            return
-        }
-        val serverCf: CertificateFactory = CertificateFactory.getInstance("X.509")
-        var caInput: InputStream = BufferedInputStream(context.assets.open(httpsCA.serverCrtPath!!))
-        val serverCa: X509Certificate = caInput.use {
-            serverCf.generateCertificate(it) as X509Certificate
-        }
-        NetLogger.print("ca=" + serverCa.subjectDN)
+        if (null != httpsTls.rootCaCrtPath) {
+            val rootCaCf: CertificateFactory = CertificateFactory.getInstance("X.509")
+            val caInput: InputStream = BufferedInputStream(context.assets.open(httpsTls.rootCaCrtPath!!))
+            val rootCa: X509Certificate = caInput.use {
+                rootCaCf.generateCertificate(it) as X509Certificate
+            }
+            NetLogger.print("ca=" + rootCa.subjectDN)
 
-        // Create a KeyStore containing our trusted CAs
-        val serverKeyStoreType = KeyStore.getDefaultType()
-        val serverKeyStore = KeyStore.getInstance(serverKeyStoreType).apply {
-            load(null, null)
-            setCertificateEntry("trust", serverCa)
-        }
+            // Create a KeyStore containing our trusted CAs
+            val rootCaKeyStoreType = KeyStore.getDefaultType()
+            val rootCaKeyStore = KeyStore.getInstance(rootCaKeyStoreType).apply {
+                load(null, null)
+                setCertificateEntry("ca", rootCa)
+            }
 
-        // Create a TrustManager that trusts the CAs inputStream our KeyStore
-        val trustAlgorithm: String = TrustManagerFactory.getDefaultAlgorithm()
-        val serverTrustFactory: TrustManagerFactory = TrustManagerFactory.getInstance(trustAlgorithm).apply {
-            init(serverKeyStore)
+            // Create a TrustManager that trusts the CAs inputStream our KeyStore
+            val trustAlgorithm: String = TrustManagerFactory.getDefaultAlgorithm()
+            val caTrustFactory: TrustManagerFactory = TrustManagerFactory.getInstance(trustAlgorithm).apply {
+                init(rootCaKeyStore)
+            }
+            trustManager = caTrustFactory.trustManagers
         }
 
         // Create a client KeyStore
         var clientKeyFactory : KeyManagerFactory? = null
-        if (httpsCA.crtVerifyType == 1 && null != httpsCA.clientCrtPath) {
-            val clientKeyStoreType = KeyStore.getDefaultType()
-            caInput = BufferedInputStream(context.assets.open(httpsCA.clientCrtPath!!))
+        if (httpsTls.crtVerifyType == HttpsTls.CERTIFICATION_TWO_WAY && null != httpsTls.clientCrtPath) {
+            val clientKeyStoreType = "BKS"   // "BKS" KeyStore.getDefaultType()
+            val clientCaInput = BufferedInputStream(context.assets.open(httpsTls.clientCrtPath!!))
             val clientKeyStore = KeyStore.getInstance(clientKeyStoreType).apply {
-                httpsCA.clientCrtPwd?.let {
-                    load(caInput, it.toCharArray())
+                httpsTls.clientCrtPwd?.let {
+                    load(clientCaInput, it.toCharArray())
                 }
             }
-            clientKeyFactory = KeyManagerFactory.getInstance("X.509")
-            httpsCA.clientCrtPwd?.let {
+            clientKeyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+            httpsTls.clientCrtPwd?.let {
                 clientKeyFactory!!.init(clientKeyStore, it.toCharArray())
             }
         }
-        trustManager = serverTrustFactory.trustManagers
         // Create an SSLContext that uses our TrustManager and KeyManager
+        NetLogger.print("clientKeyFactory is null = "+ (clientKeyFactory == null))
         sslContext = SSLContext.getInstance("TLS").apply {
-            init(clientKeyFactory?.keyManagers, trustManager, null)
+            init(clientKeyFactory?.keyManagers, trustManager, SecureRandom())
         }
     }
 
@@ -115,5 +117,53 @@ class NetHelper private constructor(){
             return it[0] as X509TrustManager
         }
         return null
+    }
+
+    private fun trustAllManager() : Array<TrustManager> {
+        return arrayOf(object : X509TrustManager {
+            override fun checkClientTrusted(
+                chain: Array<out X509Certificate>?,
+                authType: String?
+            ) {
+
+            }
+
+            override fun checkServerTrusted(
+                chain: Array<out X509Certificate>?,
+                authType: String?
+            ) {
+                if (chain == null) {
+                    throw IllegalArgumentException("checkServerTrusted:x509Certificate array isnull")
+                }
+                if (chain.isEmpty()) {
+                    throw IllegalArgumentException("checkServerTrusted: X509Certificate is empty")
+                }
+                if (!(null != authType && authType.equals("RSA", true))) {
+                    throw CertificateException("checkServerTrusted: AuthType is not RSA")
+                }
+                try {
+                    val tmf = TrustManagerFactory.getInstance("X509").apply {
+                        val keyStore : KeyStore? = null
+                        init(keyStore)
+                    }
+                    for (trustManager in tmf.trustManagers) {
+                        (trustManager as X509TrustManager).checkServerTrusted(chain, authType);
+                    }
+                } catch (e : Exception) {
+                    throw CertificateException(e);
+                }
+//                val pubkey = chain[0].publicKey as RSAPublicKey
+//                val encoded = BigInteger(1 , pubkey.encoded).toString(16)
+//                val expected = PUB_KEY.equalsIgnoreCase(encoded);
+//                if (!expected) {
+//                    throw CertificateException("checkServerTrusted: Expected public key: "
+//                            + PUB_KEY + ", got public key:" + encoded);
+//                }
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+        })
     }
 }

@@ -72,8 +72,8 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                     request.onFinish()
                     if (rawResponse.success) {
                         result.fail?.let {
-                            callback?.onFailure(it)
                             onRequestFail(it)
+                            callback?.onFailure(it)
                             return@runOnMain
                         }
                         val response = NetResponse<T>()
@@ -86,8 +86,8 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                     } else {
                         rawResponse.exception?.let {
                             val failResponse = NetFailResponse(it.message, it)
-                            callback?.onFailure(failResponse)
                             onRequestFail(failResponse)
+                            callback?.onFailure(failResponse)
                         }
                     }
                     callback?.onFinish(request)
@@ -98,6 +98,7 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
 
     private fun call() : RawResponse {
         val response = RawResponse()
+        var callEnd = false
         try {
             request.getBody()?.let {
                 OkNet.instance.getNetInterceptor()?.onInterceptParams(request.getUrl(), it.getParams())
@@ -105,6 +106,8 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             if (request.getCache().isPriorityModel()) {
                 val cacheBody = NetCacheManager.read(request)
                 if (null != cacheBody) {
+                    onRequestEnd()
+                    callEnd = true
                     response.content = cacheBody.content
                     response.mimeType = cacheBody.mimeType
                     response.code = Headers.ResponseCode.USE_CACHE
@@ -131,7 +134,8 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                 request.getMethod() == Headers.Method.PUT) {
                 write(conn, request)
             }
-            onHttpResponse()
+            onRequestEnd()
+            callEnd = true
             val responseCode = conn.responseCode
             response.code = responseCode
             response.content = readData(conn.inputStream)
@@ -150,6 +154,9 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(responseCode)
             return response
         } catch (e: Exception) {
+            if (!callEnd) {
+                onRequestEnd()
+            }
             if (request.getCache().isFailGetModel()) {
                 val cacheBody = NetCacheManager.read(request)
                 if (null != cacheBody) {
@@ -176,7 +183,12 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             conn.setHostnameVerifier { hostname, _ ->
                 val hostList = NetHelper.instance.getHttpsVerifierHostnameList()
                 hostList?.let {
-                    return@setHostnameVerifier it.contains(hostname)
+                    it.forEach { host->
+                        if (host == hostname) {
+                            return@setHostnameVerifier true
+                        }
+                    }
+                    return@setHostnameVerifier false
                 }
                 return@setHostnameVerifier false
             }

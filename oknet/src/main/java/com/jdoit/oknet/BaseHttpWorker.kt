@@ -84,6 +84,9 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
         return parseResult
     }
 
+    /**
+     * 网络请求开始
+     */
     protected fun onRequestStart() {
         requestTime = System.currentTimeMillis()
         okNet.getNetInterceptor()?.let {
@@ -93,11 +96,15 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
         }
     }
 
-    protected fun onHttpResponse() {
+    /**
+     * 网络请求结束
+     */
+    protected fun onRequestEnd() {
         consumingTime = System.currentTimeMillis() - requestTime
     }
 
     protected fun onRequestSuccess(response: RawResponse) {
+        response.consumingTime = consumingTime
         okNet.getNetInterceptor()?.let {
             NetSync.instance.runOnMain {
                 it.onRequestSuccess(request, response)
@@ -106,6 +113,7 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
     }
 
     protected fun onRequestFail(response: NetFailResponse?) {
+        response?.consumingTime = consumingTime
         okNet.getNetInterceptor()?.let {
             NetSync.instance.runOnMain {
                 it.onRequestFail(request, response)

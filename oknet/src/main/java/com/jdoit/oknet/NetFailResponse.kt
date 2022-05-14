@@ -24,7 +24,7 @@ import java.lang.Exception
  * @Description:
  */
 class NetFailResponse(var msg : String?, cause : Throwable?, var code : Int = 0) : Exception(msg, cause) {
-
+    var consumingTime : Long = 0
     constructor(msg : String?) : this(msg, null)
 
     companion object {

@@ -47,10 +47,19 @@ interface INetInterceptor {
 
     fun onInterceptHttpCode(code : Int) : Boolean
 
+    /**
+     * 网络请求开始
+     */
     fun <T> onRequestStart(request: NetRequest<T>)
 
+    /**
+     * 网络请求成功
+     */
     fun <T> onRequestSuccess(request: NetRequest<T>, response: RawResponse)
 
+    /**
+     * 网络请求失败
+     */
     fun <T> onRequestFail(request: NetRequest<T>, response: NetFailResponse?)
 
     open class INetInterceptorAdapter : INetInterceptor {

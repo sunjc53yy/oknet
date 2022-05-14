@@ -20,8 +20,11 @@ class OkNetTestApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        val ca = HttpsCA()
-        ca.serverCrtPath = "server.crt"
+        val ca = HttpsTls()
+        ca.rootCaCrtPath = "ca.crt"
+        ca.clientCrtPath = "client.bks"
+        ca.clientCrtPwd = "123456"
+        ca.crtVerifyType = HttpsTls.CERTIFICATION_TWO_WAY
         OkNet.instance.init(this)
             .addConverterFactory(NetGsonConverterFactory.create())
             .addConverterFactory(NetProtobufConverterFactory.create())

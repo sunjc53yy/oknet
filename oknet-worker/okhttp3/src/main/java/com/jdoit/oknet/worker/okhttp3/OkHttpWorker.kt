@@ -47,9 +47,11 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
         val req = newRequest()
         onRequestStart()
         call = client.newCall(req)
+        var callEnd = false
         try {
             val okResp = call!!.execute()
-            onHttpResponse()
+            onRequestEnd()
+            callEnd = true
             val rawResponse = covertToRawResponse(okResp, null)
             NetLogger.printHttpResponse(request.getUrl(), rawResponse)
             val response = NetResponse<T>()
@@ -59,8 +61,12 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             response.exception = result.fail
             response.request = request
             onRequestSuccess(rawResponse)
+            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(okResp.code)
             return response
         } catch (e: Exception) {
+            if (!callEnd) {
+                onRequestEnd()
+            }
             val rawResponse = RawResponse()
             rawResponse.exception = e
             val response = NetResponse<T>()
@@ -84,7 +90,7 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
         call = client.newCall(req)
         call!!.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                onHttpResponse()
+                onRequestEnd()
                 request.onFinish()
                 if (request.getCache().isFailGetModel()) { //读取缓存
                     val cacheBody = NetCacheManager.read(request)
@@ -106,8 +112,8 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                 NetLogger.printHttpResponse(request.getUrl(), rawResponse)
                 NetSync.instance.runOnMain {
                     val failResponse = NetFailResponse(e.message, e)
-                    callback?.onFailure(failResponse)
                     onRequestFail(failResponse)
+                    callback?.onFailure(failResponse)
                 }
                 NetSync.instance.runOnMain{
                     callback?.onFinish(request)
@@ -115,24 +121,26 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             }
 
             override fun onResponse(call: Call, response: Response) {
+                onRequestEnd()
                 request.onFinish()
-                onHttpResponse()
                 onSuccess(response, callback, false)
             }
         })
     }
 
-    private fun onSuccess(response: Response, callback: INetCallback<T>?, cache: Boolean) {
-        val rawResponse = covertToRawResponse(response, callback)
+    private fun onSuccess(okResp: Response, callback: INetCallback<T>?, cache: Boolean) {
+        val rawResponse = covertToRawResponse(okResp, callback)
         if (!cache) {
             NetLogger.printHttpResponse(request.getUrl(), rawResponse)
         }
         val result = convert(rawResponse)
         NetSync.instance.runOnMain {
             result.fail?.let {
-                callback?.onFailure(it)
-                callback?.onFinish(request)
                 onRequestFail(it)
+                callback?.let { cb->
+                    cb.onFailure(it)
+                    cb.onFinish(request)
+                }
                 return@runOnMain
             }
             val netResponse = NetResponse<T>()
@@ -140,9 +148,12 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             netResponse.cache = cache
             netResponse.data = result.data
             netResponse.request = request
-            callback?.onResponse(netResponse)
-            callback?.onFinish(request)
             onRequestSuccess(rawResponse)
+            callback?.let {
+                it.onResponse(netResponse)
+                it.onFinish(request)
+            }
+            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(okResp.code)
         }
     }
 

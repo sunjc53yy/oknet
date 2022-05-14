@@ -22,10 +22,25 @@ package com.jdoit.oknet
  * @Description:
  */
 interface INetCallback<T> {
+    /**
+     * 请求开始
+     */
     fun onStart(request: NetRequest<T>)
+    /**
+     * 请求失败
+     */
     fun onFailure(exception: NetFailResponse)
+    /**
+     * 请求成功
+     */
     fun onResponse(response: NetResponse<T>)
+    /**
+     * 请求结束
+     */
     fun onFinish(request: NetRequest<T>)
+    /**
+     * 下载进度
+     */
     fun onDownloadProgress(total : Long, download : Long)
 
     abstract class NetSimpleCallback<T> : INetCallback<T>{

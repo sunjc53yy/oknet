@@ -1,0 +1,142 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+task sourcesJar(type: Jar) {
+    println("path="+project.android.sourceSets.main.java.srcDirs)
+    if (project.hasProperty("kotlin")) {
+        from android.sourceSets.main.java.getSrcDirs()
+        exclude "**/R.class"  //排除`R.class`
+        exclude "**/BuildConfig.class"  //排除`BuildConfig.class`
+    } else if (project.hasProperty("android")) {
+        from android.sourceSets.main.java.sourceFiles
+        exclude "**/R.class"  //排除`R.class`
+        exclude "**/BuildConfig.class"  //排除`BuildConfig.class`
+    } else {
+        from sourceSets.main.allSource
+    }
+    archiveClassifier.set('sources')
+}
+
+task androidJavadocs(type: Javadoc) {
+    failOnError  false
+    if (project.hasProperty("kotlin")) {
+        source = project.android.sourceSets.main.java.getSrcDirs()
+    } else if (project.hasProperty("android")) {
+        source = android.sourceSets.main.java.sourceFiles
+    } else {
+        source = sourceSets.main.allSource
+    }
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+// build a jar with javadoc
+task javadocJar(type: Jar, dependsOn: androidJavadocs) {
+    archiveClassifier.set('javadoc')
+    from androidJavadocs.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}
+
+// 强制 Java/JavaDoc 等的编码为 UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+
+ext["siteUrl"] = ''
+ext["gitUrl"] = ''
+ext["developerId"] = ''
+ext["developerName"] = ''
+ext["developerEmail"] = ''
+ext["publishedGroupId"] = ''
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+properties.each { name, value ->
+    println "name="+name+",value="+value
+    ext[name] = value
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            mavenAar(MavenPublication) {
+                //*********gradle插件3.6.0以上
+                //from components.release
+
+                //*********gradle插件3.6.0以下
+                // 依赖 bundleReleaseAar 任务，并上传其产出的aar
+                afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+                // 也可以指定上传的AAR包，但是需要先手动生成aar
+                //artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+                println("publishedGroupId="+publishedGroupId+", publishedArtifactId="
+                        +publishedArtifactId+", publishedVersion="+publishedVersion+"，name="+android.defaultConfig.versionName)
+                groupId = publishedGroupId
+                artifactId = publishedArtifactId
+                version = publishedVersion
+                artifact(javadocJar)
+                artifact(sourcesJar)
+                pom {
+                    name = publishedLibraryName // '发布库的简单名称'
+                    // optionally artifactId can be defined here
+                    description = publishedLibraryDescription // '发布包的描述'
+                    url = siteUrl // '可以写公司官网地址或github个人页面地址'
+
+                    scm {
+                        connection = gitUrl // 'scm:替换成项目git地址'
+                        developerConnection = gitUrl // 'scm:替换为git开头的项目地址'
+                        url = siteUrl // '项目首页，可以是github项目的主页'
+                    }
+
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = developerId // '这里填写申请账号时候的全名就可以'
+                            name = developerName // '这里随意填写就可以'
+                            email = developerEmail// '最好是申请账号时用的邮箱'
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                // change URLs to point to your repos, e.g. http://my.org/repo
+                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+                credentials {
+                    println "ossrhUsername="+ossrhUsername+", ossrhPassword="+ossrhPassword
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.mavenAar
+    }
+}
+
+
+//javadoc {
+//    if(JavaVersion.current().isJava9Compatible()) {
+//        options.addBooleanOption('html5', true)
+//    }
+//}

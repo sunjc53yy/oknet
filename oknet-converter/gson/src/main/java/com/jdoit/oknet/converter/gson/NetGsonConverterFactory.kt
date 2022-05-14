@@ -23,7 +23,6 @@ import java.lang.reflect.Type
 import com.jdoit.oknet.Headers
 import com.jdoit.oknet.utils.NetLogger
 
-
 /**
  * @Author: sunjichang (https://github.com/sunjc53yy)
  * @Project: https://github.com/sunjc53yy/oknet.git
