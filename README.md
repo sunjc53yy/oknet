@@ -55,7 +55,7 @@ fun get() {
 	  .setUrl("go") //设置接口地址
 	  .setBody(body) //设置请求body
 	  .setUseBaseParser(true) //是否使用公共model解析
-	  .setCache(NetCache.FAIL_AND_GET_CACHE) //设置缓存模式
+	  .setCache(NetCache.FAIL_AND_GET_CACHE) //设置缓存策略
 	request.adapter(RxWorkerAdapterFactory.createObservableAdapter()).subscribe {
 	  it.data?.let { list-> //结果解析
 		  for (people in list) {
@@ -71,3 +71,6 @@ fun get() {
 ### 参考：
 1、https://github.com/square/retrofit.git <br />
 2、https://github.com/square/okhttp.git <br />
+
+### 配置测试的服务端项目：
+https://github.com/sunjc53yy/oknet_server_test <br />
