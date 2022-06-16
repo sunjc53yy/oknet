@@ -41,7 +41,7 @@ dependencies {
 }
 
 ext {
-    publishedArtifactId = 'oknet'
+    publishedArtifactId = 'oknet-converter-gson'
     publishedLibraryName = 'oknet-converter-gson'
     publishedLibraryDescription = 'An android network request framework'
     publishedVersion = android.defaultConfig.versionName

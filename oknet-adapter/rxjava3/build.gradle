@@ -41,7 +41,7 @@ dependencies {
 }
 
 ext {
-    publishedArtifactId = 'oknet'
+    publishedArtifactId = 'oknet-adapter-rxjava3'
     publishedLibraryName = 'oknet-adapter-rxjava3'
     publishedLibraryDescription = 'An android network request framework'
     publishedVersion = android.defaultConfig.versionName

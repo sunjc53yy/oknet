@@ -41,7 +41,7 @@ dependencies {
 }
 
 ext {
-    publishedArtifactId = 'oknet'
+    publishedArtifactId = 'oknet-worker-okhttp3'
     publishedLibraryName = 'oknet-worker-okhttp3'
     publishedLibraryDescription = 'An android network request framework'
     publishedVersion = android.defaultConfig.versionName

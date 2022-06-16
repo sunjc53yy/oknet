@@ -41,7 +41,7 @@ dependencies {
 }
 
 ext {
-    publishedArtifactId = 'oknet'
+    publishedArtifactId = 'oknet-converter-protobuf'
     publishedLibraryName = 'oknet-converter-protobuf'
     publishedLibraryDescription = 'An android network request framework'
     publishedVersion = '1.0.0'
