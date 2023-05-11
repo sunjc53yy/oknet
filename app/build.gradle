@@ -8,12 +8,12 @@ apply from : "protobuf.gradle"
 
 
 android {
-    compileSdk 31
+    compileSdk rootProject.ext.android.compileSdkVersion
 
     defaultConfig {
         applicationId "com.jdoit.oknet"
-        minSdk 21
-        targetSdk 31
+        minSdk rootProject.ext.android.minSdkVersion
+        targetSdk rootProject.ext.android.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -52,11 +52,16 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation project(':oknet')
-    implementation project(":oknet-adapter:rxjava3")
-    implementation project(":oknet-converter:gson")
-    implementation project(":oknet-converter:protobuf")
-    implementation project(':oknet-worker:okhttp3')
+    //implementation project(':oknet')
+//    implementation project(":oknet-adapter:rxjava3")
+//    implementation project(":oknet-converter:gson")
+//    implementation project(":oknet-converter:protobuf")
+//    implementation project(':oknet-worker:okhttp3')
     implementation 'io.reactivex.rxjava3:rxjava:3.1.3'
     implementation 'com.google.protobuf:protobuf-lite:3.0.0'
+    implementation 'io.github.sunjc53yy:oknet:1.0.0'
+    implementation 'io.github.sunjc53yy:oknet-worker-okhttp3:1.0.0'
+    implementation 'io.github.sunjc53yy:oknet-adapter-rxjava3:1.0.0'
+    implementation 'io.github.sunjc53yy:oknet-converter-gson:1.0'
+    implementation 'io.github.sunjc53yy:oknet-converter-protobuf:1.0.0'
 }
