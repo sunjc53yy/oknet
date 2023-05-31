@@ -1,4 +1,4 @@
-package com.jdoit.oknet
+package com.jdoit.oknet.demo
 
 /**
  * @Description:

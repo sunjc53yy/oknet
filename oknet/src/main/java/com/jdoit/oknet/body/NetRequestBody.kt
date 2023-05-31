@@ -91,6 +91,10 @@ class NetRequestBody{
     private var paramCharset : String = "UTF-8"
     private var bytes : ByteArray? = null
 
+    fun param(key : String, value : Any?) : NetRequestBody {
+        return param(key, value, true)
+    }
+
     fun param(key : String, value : Any?, encoder : Boolean = true) : NetRequestBody {
         value?.let {
             if (it == String::class.java && encoder) {
@@ -102,11 +106,15 @@ class NetRequestBody{
         return this
     }
 
-    fun param(param : MutableMap<String, Any>?, encoder : Boolean = true) : NetRequestBody {
-        param?.let {
+    fun param(params : MutableMap<String, Any>?) : NetRequestBody {
+        return param(params, true)
+    }
+
+    fun param(params : MutableMap<String, Any>?, encoder : Boolean = true) : NetRequestBody {
+        params?.let {
             paramMap.clear()
             for ((index, key) in it.keys.withIndex()) {
-                param(key, paramMap[key], encoder)
+                param(key, params[key], encoder)
             }
         }
         return this

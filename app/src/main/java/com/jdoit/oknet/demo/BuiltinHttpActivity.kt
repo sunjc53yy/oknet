@@ -1,14 +1,15 @@
-package com.jdoit.oknet
+package com.jdoit.oknet.demo
 
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.jdoit.oknet.Headers
+import com.jdoit.oknet.OkNet
 import com.jdoit.oknet.adapter.rxjava3.RxWorkerAdapterFactory
 import com.jdoit.oknet.body.NetRequestBody
 import com.jdoit.oknet.cache.NetCache
@@ -63,8 +64,13 @@ class BuiltinHttpActivity : Activity() {
         }
         //get请求
         btn_get_req.setOnClickListener {
+            val body = NetRequestBody.body()
+                .param("roomId", 1109779767340695552)
+                .param("pageNum", 1)
+                .param("pageSize", 100)
             val request = OkNet.newRequest(People::class.java)
-                .setUrl("goget")
+                .setUrl("live/room/user/list")
+                .setBody(body)
                 .setMethod(Headers.Method.GET)
             request.adapter(RxWorkerAdapterFactory.createObservableAdapter()).subscribe {
                 Log.d("TAG", "it=${it.data?.name}")

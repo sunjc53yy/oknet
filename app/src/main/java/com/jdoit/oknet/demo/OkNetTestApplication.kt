@@ -1,8 +1,9 @@
-package com.jdoit.oknet
+package com.jdoit.oknet.demo
 
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.jdoit.oknet.*
 import com.jdoit.oknet.converter.gson.NetGsonConverterFactory
 import com.jdoit.oknet.converter.protobuf.NetProtobufConverterFactory
 import com.jdoit.oknet.worker.okhttp3.OkHttpWorkerFactory

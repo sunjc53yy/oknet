@@ -10,7 +10,7 @@ android {
         minSdk rootProject.ext.android.minSdkVersion
         targetSdk rootProject.ext.android.targetSdkVersion
         versionCode 1
-        versionName "1.0.0"
+        versionName OkNetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

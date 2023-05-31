@@ -10,7 +10,7 @@ android {
         minSdk rootProject.ext.android.minSdkVersion
         targetSdk rootProject.ext.android.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName OkNetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -44,7 +44,7 @@ ext {
     publishedArtifactId = 'oknet-converter-protobuf'
     publishedLibraryName = 'oknet-converter-protobuf'
     publishedLibraryDescription = 'An android network request framework'
-    publishedVersion = '1.0.0'
+    publishedVersion = android.defaultConfig.versionName
 }
 
 apply from: '../../maven-publish.gradle'

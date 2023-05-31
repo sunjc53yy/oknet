@@ -41,46 +41,52 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
      * 数据转换成model
      */
     fun convert(response: RawResponse) : ParserResult<T> {
-        val list = okNet.getConverterFactories()
-        var converter : INetConverter<T>?
         val parseResult : ParserResult<T> = ParserResult()
-        if (!response.success) {
+        try {
+            val list = okNet.getConverterFactories()
+            var converter : INetConverter<T>?
+            if (!response.success) {
+                parseResult.fail = NetFailResponse(
+                    Headers.ResponseMsg.PARSER_FAIL, null,
+                    Headers.ResponseCode.PARSER_FAIL
+                )
+                return parseResult
+            }
+            NetLogger.print("mediaType=${response.mimeType}")
+            for (factory in list) {
+                converter = factory.create(response.mimeType)
+                converter?.let {
+                    request.getParserClass()?.let { cls ->
+                        var finalCls = cls
+                        if (request.isUseBaseParser()) {
+                            finalCls = NetClzUtils.generateType(okNet.getBaseParserModel(), cls)
+                            val result = it.convert(finalCls, response)
+                            result?.let {
+                                val model = result as INetBaseModel<T>
+                                if (OkNet.instance.getNetInterceptor()?.isSuccessBusinessCode(model.getCode()) == false) {
+                                    parseResult.data = null
+                                    parseResult.fail = NetFailResponse(model.getMessage(), null, model.getCode())
+                                } else {
+                                    parseResult.data = model.getData()
+                                }
+                                return parseResult
+                            }
+                        }
+                        val result = it.convert(finalCls, response)
+                        parseResult.data = result
+                        return parseResult
+                    }
+                }
+            }
             parseResult.fail = NetFailResponse(
                 Headers.ResponseMsg.PARSER_FAIL, null,
                 Headers.ResponseCode.PARSER_FAIL
             )
             return parseResult
+        } catch (e: Exception) {
+            parseResult.data = null
+            parseResult.fail = NetFailResponse(e.message, e)
         }
-        NetLogger.print("mediaType=${response.mimeType}")
-        for (factory in list) {
-            converter = factory.create(response.mimeType)
-            converter?.let {
-                request.getParserClass()?.let { cls ->
-                    var finalCls = cls
-                    if (request.isUseBaseParser()) {
-                        finalCls = NetClzUtils.generateType(okNet.getBaseParserModel(), cls)
-                        val result = it.convert(finalCls, response)
-                        result?.let {
-                            val model = result as INetBaseModel<T>
-                            if (OkNet.instance.getNetInterceptor()?.isSuccessBusinessCode(model.getCode()) == false) {
-                                parseResult.data = null
-                                parseResult.fail = NetFailResponse(model.getMessage(), null, model.getCode())
-                            } else {
-                                parseResult.data = model.getData()
-                            }
-                            return parseResult
-                        }
-                    }
-                    val result = it.convert(finalCls, response)
-                    parseResult.data = result
-                    return parseResult
-                }
-            }
-        }
-        parseResult.fail = NetFailResponse(
-            Headers.ResponseMsg.PARSER_FAIL, null,
-            Headers.ResponseCode.PARSER_FAIL
-        )
         return parseResult
     }
 

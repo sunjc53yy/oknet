@@ -50,12 +50,17 @@ class NetRequest<T> constructor(var net: IOkNet) {
     private var worker : INetWorker<*>? = null
     private var cache : NetCache = NetCache.NONE_CACHE
     internal var finishCallback : OnFinishCallback? = null
-    private var useBaseParser : Boolean = false
+    private var useBaseParser : Boolean? = null
     private var downloadPath : File? = null
     var downloadRequest = false
         internal set
 
     fun getUrl() : String {
+        if (method == Headers.Method.GET) { //get请求，需要拼接参数
+            body?.getParams()?.let {
+                return NetUtils.formatGetUrl(url, it)
+            }
+        }
         return url
     }
 
@@ -135,7 +140,10 @@ class NetRequest<T> constructor(var net: IOkNet) {
     }
 
     fun isUseBaseParser() : Boolean {
-        return useBaseParser
+        useBaseParser?.let {
+            return it
+        }
+        return OkNet.instance.useBaseParser
     }
 
     fun setDownloadPath(path : File) : NetRequest<T> {

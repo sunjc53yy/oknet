@@ -56,6 +56,8 @@ class OkNet private constructor(){
     private var context : Context? = null
     private var baseParserModelCls : Class<*>? = null
     private var debug = true
+    var useBaseParser : Boolean = false
+        private set
 
     init {
         //添加内置的网络请求框架和转化器
@@ -125,6 +127,11 @@ class OkNet private constructor(){
      */
     fun setBaseUrl(url : String) : OkNet {
         this.baseUrl = url
+        return this
+    }
+
+    fun setUseBaseParser(use : Boolean) : OkNet {
+        this.useBaseParser = use
         return this
     }
 

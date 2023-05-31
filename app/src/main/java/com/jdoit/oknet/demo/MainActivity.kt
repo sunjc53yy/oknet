@@ -1,11 +1,8 @@
-package com.jdoit.oknet
+package com.jdoit.oknet.demo
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import com.jdoit.oknet.body.NetRequestBody
-import com.jdoit.oknet.adapter.rxjava3.RxWorkerAdapterFactory
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**

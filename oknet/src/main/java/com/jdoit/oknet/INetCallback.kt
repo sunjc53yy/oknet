@@ -29,7 +29,7 @@ interface INetCallback<T> {
     /**
      * 请求失败
      */
-    fun onFailure(exception: NetFailResponse)
+    fun onFailure(response: NetFailResponse)
     /**
      * 请求成功
      */
@@ -47,7 +47,7 @@ interface INetCallback<T> {
         override fun onStart(request: NetRequest<T>) {
         }
 
-        override fun onFailure(exception: NetFailResponse) {
+        override fun onFailure(response: NetFailResponse) {
         }
 
         override fun onResponse(response: NetResponse<T>) {
