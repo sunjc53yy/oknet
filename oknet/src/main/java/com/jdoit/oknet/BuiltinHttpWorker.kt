@@ -15,7 +15,6 @@
  */
 package com.jdoit.oknet
 
-import com.jdoit.oknet.*
 import com.jdoit.oknet.body.NetRequestBody
 import com.jdoit.oknet.cache.NetCacheManager
 import com.jdoit.oknet.utils.NetFileUtils
@@ -49,6 +48,9 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
         response.data = result.data
         response.exception = result.fail
         response.request = request
+        result.base?.let {
+            response.setExtData(it)
+        }
         request.onFinish()
         if (rawResponse.success) {
             onRequestSuccess(rawResponse)
@@ -81,6 +83,9 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                         response.rawResponse = rawResponse
                         response.data = result.data
                         response.request = request
+                        result.base?.let {
+                            response.setExtData(it)
+                        }
                         callback?.onResponse(response)
                         onRequestSuccess(rawResponse)
                     } else {
@@ -131,7 +136,8 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             if (request.getMethod() == Headers.Method.POST ||
                 request.getMethod() == Headers.Method.DELETE ||
                 request.getMethod() == Headers.Method.PATCH ||
-                request.getMethod() == Headers.Method.PUT) {
+                request.getMethod() == Headers.Method.PUT ||
+                request.getMethod() == Headers.Method.GET) {
                 write(conn, request)
             }
             onRequestEnd()
@@ -151,7 +157,7 @@ class BuiltinHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
                 NetCacheManager.cache(response.content, response.mimeType.toString(), request)
             }
             NetLogger.printHttpResponse(request.getUrl(), response)
-            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(responseCode)
+            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(request, responseCode)
             return response
         } catch (e: Exception) {
             if (!callEnd) {

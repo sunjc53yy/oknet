@@ -63,11 +63,12 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
                             val result = it.convert(finalCls, response)
                             result?.let {
                                 val model = result as INetBaseModel<T>
-                                if (OkNet.instance.getNetInterceptor()?.isSuccessBusinessCode(model.getCode()) == false) {
+                                if (OkNet.instance.getNetInterceptor()?.isSuccessBusinessCode(request, model.getBusinessCode()) == false) {
                                     parseResult.data = null
-                                    parseResult.fail = NetFailResponse(model.getMessage(), null, model.getCode())
+                                    parseResult.fail = NetFailResponse(model.getBusinessMessage(), null, model.getBusinessCode())
                                 } else {
-                                    parseResult.data = model.getData()
+                                    parseResult.data = model.getBusinessData()
+                                    parseResult.base = model
                                 }
                                 return parseResult
                             }
@@ -129,6 +130,7 @@ abstract class BaseHttpWorker<T>(var request: NetRequest<T>, var okNet: OkNet) :
 
     class ParserResult<T>{
         var data : T? = null
+        var base : INetBaseModel<T>? = null
         var fail : NetFailResponse? = null
     }
 }

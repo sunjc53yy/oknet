@@ -54,13 +54,19 @@ class NetRequest<T> constructor(var net: IOkNet) {
     private var downloadPath : File? = null
     var downloadRequest = false
         internal set
+    private var finalUrl : String? = null
 
     fun getUrl() : String {
+        finalUrl?.let {
+            return it
+        }
         if (method == Headers.Method.GET) { //get请求，需要拼接参数
-            body?.getParams()?.let {
-                return NetUtils.formatGetUrl(url, it)
+            if (null != body && body!!.getQuery().isNotEmpty()) {
+                finalUrl = NetUtils.formatGetUrl(url, body!!.getQuery())
+                return finalUrl!!
             }
         }
+        finalUrl = url
         return url
     }
 

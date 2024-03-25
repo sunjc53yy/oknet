@@ -26,15 +26,15 @@ class BuiltinBaseModel<T> : INetBaseModel<T> {
     private var message : String? = null
     private var data : T? = null
 
-    override fun getCode(): Int {
+    override fun getBusinessCode(): Int {
         return code
     }
 
-    override fun getMessage(): String? {
+    override fun getBusinessMessage(): String? {
         return message
     }
 
-    override fun getData(): T? {
+    override fun getBusinessData(): T? {
         return data
     }
 
@@ -48,5 +48,9 @@ class BuiltinBaseModel<T> : INetBaseModel<T> {
 
     fun setData(data : T?) {
         this.data = data
+    }
+
+    override fun getExt(): MutableMap<String, Any?>? {
+        return null
     }
 }

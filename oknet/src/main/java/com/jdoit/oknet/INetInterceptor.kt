@@ -43,9 +43,9 @@ interface INetInterceptor {
     /**
      * 判断返回的业务code是否代表成功
      */
-    fun isSuccessBusinessCode(code : Int) : Boolean
+    fun <T> isSuccessBusinessCode(request: NetRequest<T>, code : Int) : Boolean
 
-    fun onInterceptHttpCode(code : Int) : Boolean
+    fun <T> onInterceptHttpCode(request: NetRequest<T>, code : Int) : Boolean
 
     /**
      * 网络请求开始
@@ -79,11 +79,11 @@ interface INetInterceptor {
             return null
         }
 
-        override fun isSuccessBusinessCode(code: Int): Boolean {
+        override fun <T> isSuccessBusinessCode(request: NetRequest<T>, code: Int): Boolean {
             return code == 200
         }
 
-        override fun onInterceptHttpCode(code: Int): Boolean {
+        override fun <T> onInterceptHttpCode(request: NetRequest<T>, code: Int): Boolean {
             return false
         }
 

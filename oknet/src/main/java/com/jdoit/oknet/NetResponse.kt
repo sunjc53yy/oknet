@@ -27,4 +27,30 @@ class NetResponse <T>{
     var request: NetRequest<T>? = null
     var data : T? = null
     var cache : Boolean = false
+    private var extMap: MutableMap<String, Any?>? = null
+
+    fun putExtData(ext: MutableMap<String, Any?>) {
+        if (null == extMap) {
+            extMap = mutableMapOf()
+        }
+        extMap?.putAll(ext)
+    }
+    fun putExtData(key: String, value: Any?) {
+        if (null == extMap) {
+            extMap = mutableMapOf()
+        }
+        extMap?.put(key, value)
+    }
+
+    fun getExtData(key: String): Any? {
+        return extMap?.get(key)
+    }
+
+    fun setExtData(model: INetBaseModel<T>) {
+        putExtData("businessCode", model.getBusinessCode())
+        putExtData("businessMessage", model.getBusinessMessage())
+        model.getExt()?.let { et->
+            putExtData(et)
+        }
+    }
 }

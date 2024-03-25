@@ -23,9 +23,11 @@ package com.jdoit.oknet
  */
 interface INetBaseModel<T> {
 
-    fun getCode() : Int
+    fun getBusinessCode() : Int
 
-    fun getMessage() : String?
+    fun getBusinessMessage() : String?
 
-    fun getData() : T?
+    fun getBusinessData() : T?
+
+    fun getExt(): MutableMap<String, Any?>?
 }

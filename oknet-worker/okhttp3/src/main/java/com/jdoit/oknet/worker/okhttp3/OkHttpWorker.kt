@@ -60,8 +60,11 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             response.data = result.data
             response.exception = result.fail
             response.request = request
+            result.base?.let {
+                response.setExtData(it)
+            }
             onRequestSuccess(rawResponse)
-            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(okResp.code)
+            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(request, okResp.code)
             return response
         } catch (e: Exception) {
             if (!callEnd) {
@@ -148,12 +151,15 @@ class OkHttpWorker<T>(request: NetRequest<T>, okNet: OkNet) :
             netResponse.cache = cache
             netResponse.data = result.data
             netResponse.request = request
+            result.base?.let {
+                netResponse.setExtData(it)
+            }
             onRequestSuccess(rawResponse)
             callback?.let {
                 it.onResponse(netResponse)
                 it.onFinish(request)
             }
-            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(okResp.code)
+            OkNet.instance.getNetInterceptor()?.onInterceptHttpCode(request, okResp.code)
         }
     }
 

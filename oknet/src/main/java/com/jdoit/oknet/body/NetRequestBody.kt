@@ -86,6 +86,7 @@ class NetRequestBody{
     annotation class MediaType
 
     private var paramMap : MutableMap<String, Any?> = mutableMapOf()
+    private var queryMap : MutableMap<String, Any?> = mutableMapOf()
     private var multipleEntities: MutableList<MultipleEntity>? = null
     private var type : String = FORM
     private var paramCharset : String = "UTF-8"
@@ -106,6 +107,21 @@ class NetRequestBody{
         return this
     }
 
+    fun query(key : String, value : Any?) : NetRequestBody {
+        return query(key, value, true)
+    }
+
+    fun query(key : String, value : Any?, encoder : Boolean = true) : NetRequestBody {
+        value?.let {
+            if (it == String::class.java && encoder) {
+                queryMap[key] = URLEncoder.encode(it as String)
+                return this
+            }
+        }
+        queryMap[key] = value
+        return this
+    }
+
     fun param(params : MutableMap<String, Any>?) : NetRequestBody {
         return param(params, true)
     }
@@ -122,6 +138,10 @@ class NetRequestBody{
 
     fun getParams() : MutableMap<String, Any?>{
         return paramMap
+    }
+
+    fun getQuery() : MutableMap<String, Any?>{
+        return queryMap
     }
 
     fun multiple(multiple : MultipleEntity) : NetRequestBody {
