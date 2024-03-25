@@ -9,6 +9,9 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.jdoit.oknet.Headers
+import com.jdoit.oknet.INetCallback
+import com.jdoit.oknet.NetRequest
+import com.jdoit.oknet.NetResponse
 import com.jdoit.oknet.OkNet
 import com.jdoit.oknet.adapter.rxjava3.RxWorkerAdapterFactory
 import com.jdoit.oknet.body.NetRequestBody
@@ -16,6 +19,7 @@ import com.jdoit.oknet.cache.NetCache
 import com.jdoit.oknet.pb.PersonOuterClass
 
 import kotlinx.android.synthetic.main.activity_builtin_http.*
+import org.json.JSONObject
 import java.io.File
 
 /**
@@ -64,17 +68,31 @@ class BuiltinHttpActivity : Activity() {
         }
         //get请求
         btn_get_req.setOnClickListener {
-            val body = NetRequestBody.body()
-                .param("roomId", 1109779767340695552)
-                .param("pageNum", 1)
-                .param("pageSize", 100)
+            val list = listOf<Long>(10,59)
+            val map = mutableMapOf<String, Any>()
+            map["roomId"] = 1114879637458124800
+            map["userIds"] = list
+            val body = NetRequestBody.jsonBody()
+                .param("roomId", 1114879637458124800, false)
+                .param("userIds", list)
             val request = OkNet.newRequest(People::class.java)
-                .setUrl("live/room/user/list")
+//                .setUrl("live/room/user/gift/value")
+                .setUrl("goget")
                 .setBody(body)
+                .setUseBaseParser(true)
                 .setMethod(Headers.Method.GET)
-            request.adapter(RxWorkerAdapterFactory.createObservableAdapter()).subscribe {
+//            request.enqueue(object : INetCallback.NetSimpleCallback<People>() {
+//                override fun onResponse(response: NetResponse<People>) {
+//                    super.onResponse(response)
+//                    Log.d("TAG", "it.code=${response.ext?.code}, it.msg=${response.ext?.message}")
+//                }
+//            })
+            request.adapter(RxWorkerAdapterFactory.createObservableAdapter()).subscribe({
                 Log.d("TAG", "it=${it.data?.name}")
-            }
+                Log.d("TAG", "it.code=${it.getExtData("code")}, it.msg=${it.getExtData("message")}")
+            },{
+                Log.d("TAG", "fail t=$it")
+            })
         }
         //head请求
         btn_head_req.setOnClickListener {

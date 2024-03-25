@@ -30,12 +30,14 @@ class OkNetTestApplication : Application() {
             .addConverterFactory(NetGsonConverterFactory.create())
             .addConverterFactory(NetProtobufConverterFactory.create())
             .addWorkerFactory(OkHttpWorkerFactory.create())
-            .setBaseUrl("https://10.0.2.2:8085")
+//            .setBaseUrl("https://test.so-sounds.com/portal-api")
             .setHttpCA(ca)
-            //.setBaseUrl("https://127.0.0.1:8089")
+            .setBaseParserModel(BaseModel::class.java)
+            .setBaseUrl("https://127.0.0.1:8085")
             .setNetInterceptor(object : INetInterceptor.INetInterceptorAdapter() {
                 override fun onInterceptHeader(url: String, header: MutableMap<String, String>) {
                     header["token"] = "abcdefg"
+                    header["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNokytEKgzAMQNF_ybMBU22T-TepbcEhOhYLg7F_X8Ze77lvuF8bLKC8xlgyYUw04txyQ23zDaeiykl0zVxhgM3MZzvt7EcxD9azh33HbvX5G_SChZIkjiQcPBR3Gp3q6_EnmSRw-HwBAAD__w.ceB4Xe9YlpaF1SbwjF5OMnHHPdy56Wzpg35ylnoNWwc"
                 }
 
                 override fun onInterceptParams(url: String, params: MutableMap<String, Any?>) {
